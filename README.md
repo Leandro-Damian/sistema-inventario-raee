@@ -1,52 +1,17 @@
-# Electrogreem - Inventario — Gestión integral de RAEE
+# Sistema de Gestión e Inventario RAEE
 
-Aplicación web local para gestión, inventario y trazabilidad de Residuos de Aparatos Eléctricos y Electrónicos. Funciona en red local (LAN) en Windows 10/11 y Linux, sin conexión a internet en tiempo de ejecución.
+Aplicación web de arquitectura cliente-servidor diseñada para operar en red local (LAN) sin depender de conexión a internet en tiempo de ejecución. Permite administrar de forma integral la recepción, trazabilidad, reacondicionamiento y valorización de Residuos de Aparatos Eléctricos y Electrónicos (RAEE) bajo un enfoque de economía circular.
 
-## Arranque rápido (Windows 10 / 11)
+## Funcionalidades principales
 
-1. Copiá la carpeta del proyecto donde quieras (por ejemplo `C:\Electrogreem`).
-2. Doble clic en **`iniciar.bat`**.
-3. Esperá a que la consola muestre la IP de red local y abrí en un navegador:
+- **Trazabilidad por lote e ítem:** Registro de ingresos por generador o cliente con asignación automática de códigos correlativos individuales, estado operativo y especificaciones técnicas.
+- **Reacondicionamiento y donaciones:** Control de equipos recuperados y emisión de actas formales de entrega institucional.
+- **Certificación de borrado seguro:** Registro técnico de unidades de almacenamiento y emisión de constancias de sanitización de datos o destrucción física.
+- **Desguace y valorización de materiales:** Inventario en kilogramos de fracciones recuperadas (metales, plásticos, placas electrónicas) con trazabilidad de movimientos.
+- **Indicadores de impacto ambiental:** Cálculo automático de emisiones de $\text{CO}_2\text{e}$ evitadas por reutilización y reciclaje, con reportes ejecutivos imprimibles.
 
-```
-http://localhost:8000
-http://<IP-LAN>:8000
-```
+## Stack tecnológico
 
-El script crea automáticamente `.venv`, instala dependencias si faltan, genera `data/raee.db` con catálogos base (sin datos ficticios) y levanta el servidor en `0.0.0.0:8000`.
-
-Para detener: `Ctrl + C` en la consola.
-
-## Linux
-
-```bash
-chmod +x iniciar.sh
-./iniciar.sh
-```
-
-## Base de datos
-
-```bash
-python scripts/init_db.py --no-demo   # solo catálogos y factores base
-python scripts/init_db.py             # catálogos + datos de demostración
-python scripts/init_db.py --reset     # recrear desde cero (pide confirmación)
-```
-
-## Tests
-
-```bash
-python -m pytest -q
-```
-
-## Estructura
-
-- `app/`: backend FastAPI, modelos SQLAlchemy, servicios, routers, plantillas Jinja2 y estáticos.
-- `app/static/css/app.css`: Tailwind compilado localmente (sin CDN).
-- `app/static/js/alpine.min.js`: Alpine.js vendorizado (sin CDN).
-- `scripts/`: inicialización de base de datos.
-- `tests/`: suite completa de pytest.
-- `MANUAL_USUARIO.md`: manual de operatoria diaria (también accesible desde el menú lateral).
-
-## Datos
-
-Toda la información queda en `data/raee.db` y los comprobantes adjuntos en `data/adjuntos/`. Realizá copias de seguridad de la carpeta `data/` completa.
+- **Backend:** Python, FastAPI, SQLAlchemy y SQLite.
+- **Frontend:** HTML5, Jinja2, Tailwind CSS y Alpine.js (empaquetados localmente).
+- **Testing:** Suite de pruebas automatizadas con `pytest`.
