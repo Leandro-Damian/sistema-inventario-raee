@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Manual de uso{% endblock %}
+{% block heading %}Manual de uso{% endblock %}
+{% block subheading %}Operatoria diaria del sistema{% endblock %}
+
+{% block content %}
+<style>
+  .manual h1 { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin: 1.5rem 0 .75rem; }
+  .manual h2 { font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 1.75rem 0 .6rem; padding-bottom: .4rem; border-bottom: 1px solid #e2e8f0; }
+  .manual h3 { font-size: 1rem; font-weight: 600; color: #334155; margin: 1.25rem 0 .5rem; }
+  .manual p { font-size: .9rem; line-height: 1.7; color: #475569; margin: .6rem 0; }
+  .manual ul, .manual ol { margin: .6rem 0 .6rem 1.25rem; list-style: disc; font-size: .9rem; line-height: 1.7; color: #475569; }
+  .manual ol { list-style: decimal; }
+  .manual li { margin: .25rem 0; }
+  .manual code { background: #f1f5f9; border-radius: .25rem; padding: .1rem .35rem; font-size: .85em; color: #065f46; }
+  .manual table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .85rem; }
+  .manual th, .manual td { border: 1px solid #e2e8f0; padding: .5rem .65rem; text-align: left; }
+  .manual th { background: #f8fafc; font-weight: 600; color: #334155; }
+  .manual strong { color: #0f172a; }
+</style>
+<article class="manual rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+  {{ contenido|safe }}
+</article>
+{% endblock %}

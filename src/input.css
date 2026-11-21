@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ajustes finos de impresión para constancias e informes. */
+@media print {
+  body { background: #fff !important; }
+  article { box-shadow: none !important; border: 0 !important; }
+}

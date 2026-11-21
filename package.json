@@ -1,0 +1,12 @@
+{
+  "name": "raee-electrogreem",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Compilación local de Tailwind CSS para la aplicación RAEE (runtime 100% offline)",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./app/static/css/app.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}

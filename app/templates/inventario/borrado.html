@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Borrado seguro{% endblock %}
+{% block heading %}Borrado seguro y destrucción de datos{% endblock %}
+{% block subheading %}Ítem: {{ item.codigo }}{% endblock %}
+
+{% block content %}
+<form method="post" action="/inventario/{{ item.id }}/borrado" enctype="multipart/form-data" class="space-y-6">
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h2 class="text-sm font-semibold text-slate-900">Unidad de almacenamiento</h2>
+        <p class="mt-1 text-xs text-slate-500">Los datos se toman de la ficha del ítem y pueden ajustarse antes de emitir la constancia.</p>
+      </div>
+      {% if borrado %}<a href="/borrado/{{ borrado.id }}/certificado" class="no-print rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Ver certificado</a>{% endif %}
+    </div>
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Entidad de origen</span>
+        <select name="entidad_origen_id" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          <option value="">Sin entidad</option>
+          {% for e in entidades %}<option value="{{ e.id }}" {{ 'selected' if borrado and borrado.entidad_origen_id == e.id }}>{{ e.razon_social }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="block"><span class="text-xs font-medium text-slate-600">Tipo</span>
+        <input name="tipo" value="{{ borrado.tipo if borrado else item.tipo_unidad }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></label>
+      <label class="block"><span class="text-xs font-medium text-slate-600">Capacidad</span>
+        <input name="capacidad" value="{{ borrado.capacidad if borrado else item.capacidad }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></label>
+      <label class="block"><span class="text-xs font-medium text-slate-600">Interfaz</span>
+        <input name="interfaz" value="{{ borrado.interfaz if borrado else item.interfaz }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></label>
+      <label class="block"><span class="text-xs font-medium text-slate-600">Estado SMART</span>
+        <select name="salud_smart" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          <option value="">—</option>
+          {% for s in salud %}<option value="{{ s }}" {{ 'selected' if (borrado.salud_smart if borrado else item.salud_smart) == s }}>{{ s }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="block"><span class="text-xs font-medium text-slate-600">Número de serie verificado *</span>
+        <input name="numero_serie_verificado" required value="{{ borrado.numero_serie_verificado if borrado else item.numero_serie }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></label>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-sm font-semibold text-slate-900">Procedimiento</h2>
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Modalidad *</span>
+        <select name="modalidad" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          {% for m in modalidades %}<option value="{{ m }}" {{ 'selected' if borrado and borrado.modalidad == m }}>{{ m }}</option>{% endfor %}
+        </select>
+        <span class="mt-1 block text-[11px] text-slate-400">Destrucción física (prensa, taladro, etc.) o borrado por software.</span>
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Nombre del software o herramienta física</span>
+        <input name="herramienta" value="{{ borrado.herramienta if borrado else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Fecha y hora *</span>
+        <input type="datetime-local" name="fecha_hora" required
+               value="{{ borrado.fecha_hora.strftime('%Y-%m-%dT%H:%M') if borrado else '' }}"
+               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Estándar compatible *</span>
+        <select name="estandar" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          {% for e in estandares %}<option value="{{ e }}" {{ 'selected' if borrado and borrado.estandar == e }}>{{ e }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="block sm:col-span-2">
+        <span class="text-xs font-medium text-slate-600">Método / técnica utilizada</span>
+        <textarea name="metodo" rows="3" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">{{ borrado.metodo if borrado else '' }}</textarea>
+      </label>
+      <label class="block sm:col-span-2">
+        <span class="text-xs font-medium text-slate-600">Adjunto de comprobante</span>
+        <input type="file" name="comprobante" class="mt-1 w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white">
+        {% if borrado and borrado.comprobante_path %}<span class="mt-1 block text-xs text-emerald-700">Ya hay un comprobante cargado; si elegís otro se reemplaza.</span>{% endif %}
+      </label>
+    </div>
+  </section>
+
+  <div class="flex flex-wrap gap-3 pb-6">
+    <button class="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Guardar y generar constancia</button>
+    <a href="/inventario/{{ item.id }}" class="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

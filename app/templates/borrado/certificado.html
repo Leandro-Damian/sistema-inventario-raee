@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{# El <head> de base.html aporta favicon.ico y favicon.png también a esta vista imprimible. #}
+{% block title %}Certificado de borrado{% endblock %}
+{% block heading %}Certificado / Constancia{% endblock %}
+{% block subheading %}Borrado seguro y destrucción de datos{% endblock %}
+
+{% block content %}
+<div class="no-print mb-5 flex gap-3">
+  <button onclick="window.print()" class="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Imprimir certificado</button>
+  <a href="/inventario/{{ borrado.item_id }}" class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Volver a la ficha</a>
+</div>
+
+<article class="mx-auto max-w-3xl rounded-xl border border-slate-300 bg-white p-8 shadow-sm sm:p-12">
+  <header class="flex items-start justify-between border-b-2 border-emerald-600 pb-6">
+    <div>
+      <p class="text-xl font-bold text-slate-900">{{ app_name }}</p>
+      <p class="text-sm text-slate-500">Gestión integral de RAEE · Tucumán, Argentina</p>
+    </div>
+    <div class="text-right">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Certificado N°</p>
+      <p class="font-mono text-sm font-semibold text-slate-800">BS-{{ '%05d'|format(borrado.id) }}</p>
+    </div>
+  </header>
+
+  <h1 class="mt-8 text-center text-xl font-bold uppercase tracking-wide text-slate-900">Constancia de borrado seguro / destrucción de datos</h1>
+
+  <p class="mt-6 text-sm leading-relaxed text-slate-700">
+    Se certifica que la unidad de almacenamiento identificada abajo fue sometida al procedimiento
+    de <strong>{{ borrado.modalidad }}</strong>, conforme al estándar
+    <strong>{{ borrado.estandar }}</strong>, con el fin de impedir la recuperación de la información
+    contenida en la misma.
+  </p>
+
+  <dl class="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 text-sm sm:grid-cols-2">
+    <div><dt class="text-xs text-slate-500">Ítem de inventario</dt><dd class="font-semibold text-slate-800">{{ borrado.item.codigo }}</dd></div>
+    <div><dt class="text-xs text-slate-500">Entidad de origen</dt><dd class="font-semibold text-slate-800">{{ borrado.entidad_origen.razon_social if borrado.entidad_origen else '—' }}</dd></div>
+    <div><dt class="text-xs text-slate-500">Tipo de unidad</dt><dd class="font-semibold text-slate-800">{{ borrado.tipo or '—' }}</dd></div>
+    <div><dt class="text-xs text-slate-500">Capacidad</dt><dd class="font-semibold text-slate-800">{{ borrado.capacidad or '—' }}</dd></div>
+    <div><dt class="text-xs text-slate-500">Interfaz</dt><dd class="font-semibold text-slate-800">{{ borrado.interfaz or '—' }}</dd></div>
+    <div><dt class="text-xs text-slate-500">Estado SMART</dt><dd class="font-semibold text-slate-800">{{ borrado.salud_smart or '—' }}</dd></div>
+    <div class="sm:col-span-2"><dt class="text-xs text-slate-500">Número de serie verificado</dt><dd class="font-mono font-semibold text-slate-800">{{ borrado.numero_serie_verificado }}</dd></div>
+    <div><dt class="text-xs text-slate-500">Software / herramienta</dt><dd class="font-semibold text-slate-800">{{ borrado.herramienta or '—' }}</dd></div>
+    <div><dt class="text-xs text-slate-500">Fecha y hora</dt><dd class="font-semibold text-slate-800">{{ borrado.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</dd></div>
+    <div class="sm:col-span-2"><dt class="text-xs text-slate-500">Método / técnica utilizada</dt><dd class="font-semibold text-slate-800">{{ borrado.metodo or '—' }}</dd></div>
+    <div class="sm:col-span-2"><dt class="text-xs text-slate-500">Comprobante adjunto</dt><dd class="font-semibold text-slate-800">{{ borrado.comprobante_path.split('/')[-1].split('\\')[-1] if borrado.comprobante_path else 'Sin adjunto' }}</dd></div>
+  </dl>
+
+  <p class="mt-8 text-xs leading-relaxed text-slate-500">
+    La presente constancia se emite a los efectos de acreditar la disposición final segura del soporte
+    de almacenamiento, sin perjuicio de las obligaciones legales vigentes en materia de protección de
+    datos personales y gestión de residuos electrónicos.
+  </p>
+
+  <div class="mt-12 grid grid-cols-1 gap-10 text-center text-xs text-slate-600 sm:grid-cols-2">
+    <div><div class="border-t border-slate-400 pt-2">Responsable del procedimiento</div><div>{{ app_name }}</div></div>
+    <div><div class="border-t border-slate-400 pt-2">Representante de la entidad</div><div>{{ borrado.entidad_origen.nombre_corto if borrado.entidad_origen else '—' }}</div></div>
+  </div>
+
+  <footer class="mt-10 border-t border-slate-200 pt-4 text-center text-[11px] text-slate-400">
+    {{ app_name }} · Tucumán, Argentina
+  </footer>
+</article>
+{% endblock %}

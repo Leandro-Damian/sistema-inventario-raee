@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Panel principal{% endblock %}
+{% block heading %}Panel principal{% endblock %}
+{% block subheading %}Resumen operativo en tiempo real{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+  <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Ítems registrados</p>
+    <p class="mt-2 text-3xl font-bold text-slate-900">{{ total_items }}</p>
+    <p class="mt-1 text-xs text-emerald-700">{{ stock_activo }} en stock activo</p>
+  </div>
+  <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Peso total ingresado</p>
+    <p class="mt-2 text-3xl font-bold text-slate-900">{{ '%.1f'|format(peso_total) }} <span class="text-base font-medium text-slate-500">kg</span></p>
+    <p class="mt-1 text-xs text-slate-500">Suma de peso unitario de los ítems</p>
+  </div>
+  <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Equipos donados</p>
+    <p class="mt-2 text-3xl font-bold text-slate-900">{{ donados }}</p>
+    <p class="mt-1 text-xs text-emerald-700">Entregas con acta</p>
+  </div>
+  <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Materiales valorizados</p>
+    <p class="mt-2 text-3xl font-bold text-slate-900">{{ '%.1f'|format(materiales_kg) }} <span class="text-base font-medium text-slate-500">kg</span></p>
+    <p class="mt-1 text-xs text-slate-500">Fracciones recuperadas</p>
+  </div>
+  <div class="rounded-xl border border-emerald-200 bg-emerald-600 p-5 text-white shadow-sm">
+    <p class="text-xs font-medium uppercase tracking-wide text-emerald-100">CO2e evitado</p>
+    <p class="mt-2 text-3xl font-bold">{{ '%.1f'|format(impacto.total) }} <span class="text-base font-medium text-emerald-100">kg</span></p>
+    <p class="mt-1 text-xs text-emerald-100">Economía circular</p>
+  </div>
+</div>
+
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-sm font-semibold text-slate-900">Inventario por estado</h2>
+    <div class="mt-4 space-y-3">
+      {% set max_estado = por_estado | map(attribute='cantidad') | max if por_estado else 1 %}
+      {% for fila in por_estado %}
+      <div>
+        <div class="flex justify-between text-xs text-slate-600">
+          <span>{{ fila.estado }}</span><span class="font-semibold">{{ fila.cantidad }}</span>
+        </div>
+        <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+          <div class="h-full rounded-full bg-emerald-500" style="width: {{ (fila.cantidad / (max_estado or 1) * 100)|round|int }}%"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-sm font-semibold text-slate-900">Top categorías</h2>
+    <div class="mt-4 space-y-3">
+      {% set max_cat = top_categorias | map(attribute='cantidad') | max if top_categorias else 1 %}
+      {% for fila in top_categorias %}
+      <div>
+        <div class="flex justify-between text-xs text-slate-600">
+          <span class="truncate pr-2">{{ fila.categoria }}</span><span class="font-semibold">{{ fila.cantidad }}</span>
+        </div>
+        <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+          <div class="h-full rounded-full bg-slate-700" style="width: {{ (fila.cantidad / (max_cat or 1) * 100)|round|int }}%"></div>
+        </div>
+      </div>
+      {% else %}
+      <p class="text-sm text-slate-500">Aún no hay ítems registrados.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-slate-900">Últimos ingresos</h2>
+      <a href="/ingresos" class="text-xs font-medium text-emerald-700 hover:underline">Ver todos →</a>
+    </div>
+    <div class="mt-4 divide-y divide-slate-100">
+      {% for ing in ultimos_ingresos %}
+      <a href="/ingresos/{{ ing.id }}" class="flex items-center justify-between py-3 hover:bg-slate-50">
+        <div>
+          <p class="text-sm font-medium text-slate-800">{{ ing.codigo }}</p>
+          <p class="text-xs text-slate-500">{{ ing.generador.nombre_corto or ing.generador.razon_social }}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-slate-600">{{ ing.fecha_retiro.strftime('%d/%m/%Y') }}</p>
+          <p class="text-xs text-emerald-700">{{ '%.1f'|format(ing.peso_declarado) }} kg</p>
+        </div>
+      </a>
+      {% else %}
+      <p class="py-4 text-sm text-slate-500">No hay ingresos registrados.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-slate-900">Últimas donaciones</h2>
+      <a href="/donaciones" class="text-xs font-medium text-emerald-700 hover:underline">Ver todas →</a>
+    </div>
+    <div class="mt-4 divide-y divide-slate-100">
+      {% for don in ultimas_donaciones %}
+      <a href="/donaciones/{{ don.id }}" class="flex items-center justify-between py-3 hover:bg-slate-50">
+        <div>
+          <p class="text-sm font-medium text-slate-800">{{ don.codigo }}</p>
+          <p class="text-xs text-slate-500">{{ don.entidad.nombre_corto or don.entidad.razon_social }}</p>
+        </div>
+        <p class="text-xs text-slate-600">{{ don.fecha.strftime('%d/%m/%Y') }}</p>
+      </a>
+      {% else %}
+      <p class="py-4 text-sm text-slate-500">No hay donaciones registradas.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+<div class="no-print mt-6 flex flex-wrap gap-3">
+  <a href="/ingresos/nuevo" class="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">+ Nuevo ingreso</a>
+  <a href="/inventario" class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Ver inventario</a>
+</div>
+{% endblock %}

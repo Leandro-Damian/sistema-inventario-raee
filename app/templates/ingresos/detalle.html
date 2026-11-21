@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ ing.codigo }}{% endblock %}
+{% block heading %}{{ ing.codigo }}{% endblock %}
+{% block subheading %}Detalle del ingreso y transporte{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
+    <h2 class="text-sm font-semibold text-slate-900">Retiro</h2>
+    <dl class="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+      <div><dt class="text-xs text-slate-500">Generador</dt><dd class="font-medium text-slate-800">{{ ing.generador.razon_social }}</dd></div>
+      <div><dt class="text-xs text-slate-500">Fecha y hora de retiro</dt><dd class="font-medium text-slate-800">{{ ing.fecha_retiro.strftime('%d/%m/%Y %H:%M') }}</dd></div>
+      <div><dt class="text-xs text-slate-500">Remito / Manifiesto</dt><dd class="font-medium text-slate-800">{{ ing.remito or '—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500">Peso total declarado</dt><dd class="font-medium text-slate-800">{{ '%.2f'|format(ing.peso_declarado) }} kg</dd></div>
+      <div class="sm:col-span-2"><dt class="text-xs text-slate-500">Resumen de RAEE retirados</dt><dd class="font-medium text-slate-800">{{ ing.resumen or '—' }}</dd></div>
+    </dl>
+
+    <h2 class="mt-6 text-sm font-semibold text-slate-900">Transporte</h2>
+    <dl class="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+      <div><dt class="text-xs text-slate-500">Camión (marca y modelo)</dt><dd class="font-medium text-slate-800">{{ ing.camion or '—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500">Patente</dt><dd class="font-medium text-slate-800">{{ ing.patente or '—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500">Empresa de transporte</dt><dd class="font-medium text-slate-800">{{ ing.empresa_transporte or '—' }}</dd></div>
+      <div><dt class="text-xs text-slate-500">Chofer</dt><dd class="font-medium text-slate-800">{{ ing.chofer_nombre or '—' }} · {{ ing.chofer_telefono }}</dd></div>
+      <div class="sm:col-span-2">
+        <dt class="text-xs text-slate-500">Operarios intervinientes</dt>
+        <dd class="font-medium text-slate-800">
+          {% for op in operarios %}
+          <div class="mb-1 flex flex-wrap items-center gap-x-3">
+            <span>{{ op.nombre or '—' }}</span>
+            {% if op.telefono %}<span class="text-xs font-normal text-slate-500">Tel.: {{ op.telefono }}</span>{% endif %}
+          </div>
+          {% else %}—{% endfor %}
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <aside class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Ítems generados</p>
+    <p class="mt-2 text-3xl font-bold text-slate-900">{{ ing.items|length }}</p>
+    <p class="mt-1 text-xs text-slate-500">{{ '%.2f'|format(ing.items | sum(attribute='peso_unitario')) }} kg registrados</p>
+  </aside>
+</div>
+
+<section class="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+  <div class="border-b border-slate-200 px-5 py-4">
+    <h2 class="text-sm font-semibold text-slate-900">Ítems de este ingreso</h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+        <tr><th class="px-4 py-3">Código</th><th class="px-4 py-3">Categoría</th><th class="px-4 py-3">Marca / Modelo</th><th class="px-4 py-3">Peso</th><th class="px-4 py-3">Estado</th><th class="px-4 py-3"></th></tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for it in ing.items %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 font-medium text-slate-800">{{ it.codigo }}</td>
+          <td class="px-4 py-3 text-slate-600">{{ it.categoria }}{% if it.subcategoria %} · {{ it.subcategoria }}{% endif %}</td>
+          <td class="px-4 py-3 text-slate-600">{{ it.marca }} {{ it.modelo }}</td>
+          <td class="px-4 py-3 text-slate-600">{{ '%.3f'|format(it.peso_unitario) }} kg</td>
+          <td class="px-4 py-3"><span class="rounded-full bg-emerald-50 px-2 py-1 text-xs text-emerald-700">{{ it.estado }}</span></td>
+          <td class="px-4 py-3 text-right"><a href="/inventario/{{ it.id }}" class="text-xs font-medium text-emerald-700 hover:underline">Ver ficha →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

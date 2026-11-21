@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}Nuevo ingreso{% endblock %}
+{% block heading %}Nuevo ingreso{% endblock %}
+{% block subheading %}Retiro, transporte y carga rápida de ítems{% endblock %}
+
+{% block content %}
+<form method="post" action="/ingresos/nuevo" x-data='{
+  items: [{ categoria: "", subcategoria: "", marca: "", modelo: "", cantidad: 1, peso: "", attrs: [], storage: { numero_serie: "", tipo_unidad: "", factor_forma: "", interfaz: "", capacidad: "", salud_smart: "", disposicion: "" } }],
+  operarios: [{ nombre: "", telefono: "" }, { nombre: "", telefono: "" }],
+  plantillas: {{ plantillas|tojson }},
+  categorias: {{ categorias|tojson }},
+  tiposCable: {{ tipos_cable|tojson }},
+  tiposUnidad: {{ tipos_unidad|tojson }},
+  factoresForma: {{ factores_forma|tojson }},
+  interfaces: {{ interfaces|tojson }},
+  salud: {{ salud|tojson }},
+  disposiciones: {{ disposiciones|tojson }},
+  elegirCategoria(it) {
+    it.attrs = (this.plantillas[it.categoria] || []).map(c => ({ clave: c, valor: "" }));
+    it.subcategoria = "";
+  },
+  agregarItem() {
+    this.items.push({ categoria: "", subcategoria: "", marca: "", modelo: "", cantidad: 1, peso: "", attrs: [], storage: { numero_serie: "", tipo_unidad: "", factor_forma: "", interfaz: "", capacidad: "", salud_smart: "", disposicion: "" } });
+  },
+  quitarItem(i) { if (this.items.length > 1) this.items.splice(i, 1); },
+  agregarOperario() { this.operarios.push({ nombre: "", telefono: "" }); },
+  quitarOperario(i) { this.operarios.splice(i, 1); },
+  agregarAttr(it) { it.attrs.push({ clave: "", valor: "" }); },
+  quitarAttr(it, j) { it.attrs.splice(j, 1); }
+}' class="space-y-6">
+
+  <input type="hidden" name="item_count" x-bind:value="items.length">
+  <input type="hidden" name="operario_count" x-bind:value="operarios.length">
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-sm font-semibold text-slate-900">Datos del retiro</h2>
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Generador *</span>
+        <select name="generador_id" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          <option value="">Seleccionar…</option>
+          {% for g in generadores %}<option value="{{ g.id }}">{{ g.razon_social }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Fecha y hora de retiro *</span>
+        <input type="datetime-local" name="fecha_retiro" required class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">N° de Remito / Manifiesto</span>
+        <input name="remito" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Peso total declarado (kg)</span>
+        <input type="number" step="0.01" min="0" name="peso_declarado" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+      <label class="block sm:col-span-2">
+        <span class="text-xs font-medium text-slate-600">Resumen de RAEE retirados</span>
+        <input name="resumen" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Ej.: 26 gabinetes PC, 26 monitores, 52 cables C13">
+      </label>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-sm font-semibold text-slate-900">Datos de transporte</h2>
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Marca y modelo de camión</span>
+        <input name="camion" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Patente</span>
+        <input name="patente" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Empresa de transporte</span>
+        <input name="empresa_transporte" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Chofer — Nombre y Apellido</span>
+        <input name="chofer_nombre" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Chofer — Teléfono</span>
+        <input name="chofer_telefono" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+    </div>
+
+    <div class="mt-5 border-t border-slate-100 pt-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Operarios intervinientes</h3>
+        <button type="button" @click="agregarOperario()" class="rounded border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50">+ Agregar operario</button>
+      </div>
+      <p class="mt-1 text-[11px] text-slate-400">Se cargan dos operarios por defecto. Podés quitar cualquiera o agregar más. Solo Nombre y Apellido y Teléfono.</p>
+      <template x-for="(op, i) in operarios" :key="i">
+        <div class="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <div class="mb-2 flex items-center justify-between">
+            <span class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Operario <span x-text="i + 1"></span></span>
+            <button type="button" @click="quitarOperario(i)" class="rounded border border-red-200 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50">Quitar</button>
+          </div>
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <label class="block">
+              <span class="text-xs font-medium text-slate-600">Nombre y Apellido</span>
+              <input type="text" :name="'operario_nombre_' + i" x-model="op.nombre" placeholder="Nombre y Apellido"
+                     class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+            </label>
+            <label class="block">
+              <span class="text-xs font-medium text-slate-600">Teléfono</span>
+              <input type="tel" :name="'operario_telefono_' + i" x-model="op.telefono" placeholder="Ej.: 0381 400-0000"
+                     class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+            </label>
+          </div>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-sm font-semibold text-slate-900">Carga rápida de ítems</h2>
+        <p class="mt-1 text-xs text-slate-500">Cantidad > 1 genera automáticamente los códigos RAEE correlativos con el peso unitario indicado.</p>
+      </div>
+      <button type="button" @click="agregarItem()" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">+ Agregar fila de ítem</button>
+    </div>
+
+    <template x-for="(it, i) in items" :key="i">
+      <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Ítem <span x-text="i + 1"></span></span>
+          <button type="button" @click="quitarItem(i)" class="rounded border border-red-200 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50">Quitar ítem</button>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <label class="block">
+            <span class="text-xs font-medium text-slate-600">Categoría *</span>
+            <select :name="'item_categoria_' + i" x-model="it.categoria" @change="elegirCategoria(it)" required
+                    class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              <option value="">Seleccionar…</option>
+              <template x-for="cat in categorias" :key="cat"><option :value="cat" x-text="cat"></option></template>
+            </select>
+          </label>
+          <label class="block" x-show="it.categoria === 'Cables'" style="display:none;">
+            <span class="text-xs font-medium text-slate-600">Tipo de cable</span>
+            <select :name="'item_subcategoria_' + i" x-model="it.subcategoria" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              <option value="">Seleccionar…</option>
+              <template x-for="tc in tiposCable" :key="tc"><option :value="tc" x-text="tc"></option></template>
+            </select>
+          </label>
+          <label class="block">
+            <span class="text-xs font-medium text-slate-600">Marca</span>
+            <input type="text" :name="'item_marca_' + i" x-model="it.marca" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          </label>
+          <label class="block">
+            <span class="text-xs font-medium text-slate-600">Modelo</span>
+            <input type="text" :name="'item_modelo_' + i" x-model="it.modelo" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          </label>
+          <label class="block">
+            <span class="text-xs font-medium text-slate-600">Cantidad</span>
+            <input type="number" min="1" step="1" value="1" :name="'item_cantidad_' + i" x-model="it.cantidad" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          </label>
+          <label class="block">
+            <span class="text-xs font-medium text-slate-600">Peso unitario (kg)</span>
+            <input type="number" min="0" step="0.001" :name="'item_peso_' + i" x-model="it.peso" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          </label>
+        </div>
+
+        <div class="mt-4 rounded-lg border border-slate-200 bg-white p-3" x-show="it.categoria === 'Unidades de Almacenamiento'" style="display:none;">
+          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Ficha de almacenamiento</p>
+          <input type="hidden" :name="'item_attr_count_' + i" x-bind:value="it.attrs.length">
+          <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <label class="block"><span class="text-xs font-medium text-slate-600">Tipo</span>
+              <select :name="'item_tipo_unidad_' + i" x-model="it.storage.tipo_unidad" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                <option value="">Seleccionar…</option>
+                <template x-for="o in tiposUnidad" :key="o"><option :value="o" x-text="o"></option></template>
+              </select>
+            </label>
+            <label class="block"><span class="text-xs font-medium text-slate-600">Factor de forma / Pulgadas</span>
+              <select :name="'item_factor_forma_' + i" x-model="it.storage.factor_forma" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                <option value="">Seleccionar…</option>
+                <template x-for="o in factoresForma" :key="o"><option :value="o" x-text="o"></option></template>
+              </select>
+            </label>
+            <label class="block"><span class="text-xs font-medium text-slate-600">Interfaz</span>
+              <select :name="'item_interfaz_' + i" x-model="it.storage.interfaz" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                <option value="">Seleccionar…</option>
+                <template x-for="o in interfaces" :key="o"><option :value="o" x-text="o"></option></template>
+              </select>
+            </label>
+            <label class="block"><span class="text-xs font-medium text-slate-600">Capacidad</span>
+              <input type="text" :name="'item_capacidad_' + i" x-model="it.storage.capacidad" placeholder="240 GB, 500 GB, 1 TB…" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+            </label>
+            <label class="block"><span class="text-xs font-medium text-slate-600">Número de serie (S/N)</span>
+              <input type="text" :name="'item_numero_serie_' + i" x-model="it.storage.numero_serie" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+            </label>
+            <label class="block"><span class="text-xs font-medium text-slate-600">Estado de salud / SMART</span>
+              <select :name="'item_salud_smart_' + i" x-model="it.storage.salud_smart" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                <option value="">Seleccionar…</option>
+                <template x-for="o in salud" :key="o"><option :value="o" x-text="o"></option></template>
+              </select>
+            </label>
+            <label class="block sm:col-span-2"><span class="text-xs font-medium text-slate-600">Disposición</span>
+              <select :name="'item_disposicion_' + i" x-model="it.storage.disposicion" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                <option value="">Seleccionar…</option>
+                <template x-for="o in disposiciones" :key="o"><option :value="o" x-text="o"></option></template>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="mt-4 rounded-lg border border-slate-200 bg-white p-3" x-show="it.categoria !== 'Unidades de Almacenamiento'" style="display:none;">
+          <input type="hidden" :name="'item_attr_count_' + i" x-bind:value="it.attrs.length">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Atributos opcionales (clave / valor)</p>
+            <button type="button" @click="agregarAttr(it)" class="rounded border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50">+ Agregar fila</button>
+          </div>
+          <template x-for="(a, j) in it.attrs" :key="j">
+            <div class="mt-2 flex flex-col gap-2 sm:flex-row">
+              <input type="text" :name="'item_attr_clave_' + i + '_' + j" x-model="a.clave" placeholder="Clave" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm sm:w-1/2">
+              <input type="text" :name="'item_attr_valor_' + i + '_' + j" x-model="a.valor" placeholder="Valor" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm sm:w-1/2">
+              <button type="button" @click="quitarAttr(it,j)" class="rounded border border-red-200 px-3 py-2 text-xs text-red-600 hover:bg-red-50">×</button>
+            </div>
+          </template>
+          <p class="mt-2 text-[11px] text-slate-400" x-show="it.attrs.length === 0" style="display:none;">Sin atributos cargados. Podés agregar los que necesites.</p>
+        </div>
+      </div>
+    </template>
+  </section>
+
+  <div class="flex flex-wrap gap-3 pb-6">
+    <button class="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Registrar ingreso</button>
+    <a href="/ingresos" class="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

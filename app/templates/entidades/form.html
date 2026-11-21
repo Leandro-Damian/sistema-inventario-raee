@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar entidad' if entidad else 'Nueva entidad' }}{% endblock %}
+{% block heading %}{{ 'Editar entidad' if entidad else 'Nueva entidad' }}{% endblock %}
+{% block subheading %}Datos de la organización y contacto de referencia{% endblock %}
+
+{% block content %}
+<form method="post" action="{{ accion }}" class="space-y-6">
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-sm font-semibold text-slate-900">Datos de la entidad</h2>
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <label class="block sm:col-span-2">
+        <span class="text-xs font-medium text-slate-600">Razón social / Nombre *</span>
+        <input name="razon_social" required value="{{ entidad.razon_social if entidad else '' }}"
+               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Nombre corto</span>
+        <input name="nombre_corto" value="{{ entidad.nombre_corto if entidad else '' }}"
+               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">CUIT</span>
+        <input name="cuit" value="{{ entidad.cuit if entidad else '' }}"
+               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Tipo *</span>
+        <select name="tipo" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+          <option value="">Seleccionar…</option>
+          {% for t in tipos %}
+          <option value="{{ t }}" {{ 'selected' if entidad and entidad.tipo == t }}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Provincia</span>
+        <input name="provincia" value="{{ entidad.provincia if entidad else '' }}"
+               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Localidad</span>
+        <input name="localidad" value="{{ entidad.localidad if entidad else '' }}"
+               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+      </label>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-sm font-semibold text-slate-900">Contacto de referencia</h2>
+    <p class="mt-1 text-xs text-slate-500">Cuatro campos: nombre y apellido, cargo o función, email y teléfono.</p>
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Nombre y Apellido</span>
+        <input name="contacto_nombre" value="{{ entidad.contacto_nombre if entidad else '' }}"
+               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Cargo o Función</span>
+        <input name="contacto_cargo" value="{{ entidad.contacto_cargo if entidad else '' }}"
+               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Email</span>
+        <input type="email" name="contacto_email" value="{{ entidad.contacto_email if entidad else '' }}"
+               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Teléfono</span>
+        <input name="contacto_telefono" value="{{ entidad.contacto_telefono if entidad else '' }}"
+               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+      </label>
+    </div>
+  </section>
+
+  <div class="flex flex-wrap gap-3">
+    <button class="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Guardar entidad</button>
+    <a href="/entidades" class="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Nueva donación{% endblock %}
+{% block heading %}Nueva donación{% endblock %}
+{% block subheading %}Equipos en estado Para donar o Recuperado{% endblock %}
+
+{% block content %}
+<form method="post" action="/donaciones/nueva" class="space-y-6" x-data="{ seleccionados: [] }">
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Entidad receptora *</span>
+        <select name="entidad_id" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          <option value="">Seleccionar…</option>
+          {% for r in receptores %}<option value="{{ r.id }}">{{ r.razon_social }}</option>{% endfor %}
+        </select>
+        {% if not receptores %}<span class="mt-1 block text-xs text-amber-600">No hay entidades receptoras activas. Creá una en Entidades.</span>{% endif %}
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-600">Fecha de entrega *</span>
+        <input type="date" name="fecha" required class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </label>
+      <label class="block sm:col-span-2">
+        <span class="text-xs font-medium text-slate-600">Observaciones</span>
+        <textarea name="observaciones" rows="2" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
+      </label>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-slate-900">Equipos a entregar</h2>
+      <span class="text-xs text-slate-500" x-text="seleccionados.length + ' seleccionado(s)'"></span>
+    </div>
+    <div class="mt-4 max-h-96 overflow-y-auto rounded-lg border border-slate-200">
+      <label class="flex items-center gap-3 border-b border-slate-100 bg-slate-50 px-4 py-2.5 text-xs font-medium text-slate-600">
+        <input type="checkbox" @change="seleccionados = $event.target.checked ? {{ candidatos | map(attribute='id') | list | tojson }} : []" class="rounded border-slate-300">
+        Seleccionar todos
+      </label>
+      {% for c in candidatos %}
+      <label class="flex items-center gap-3 border-b border-slate-100 px-4 py-3 text-sm last:border-b-0 hover:bg-slate-50">
+        <input type="checkbox" name="item_ids" value="{{ c.id }}" x-model="seleccionados" class="rounded border-slate-300">
+        <span class="flex-1">
+          <span class="font-medium text-slate-800">{{ c.codigo }}</span>
+          <span class="block text-xs text-slate-500">{{ c.categoria }} · {{ c.marca }} {{ c.modelo }}</span>
+        </span>
+        <span class="rounded-full bg-emerald-50 px-2 py-1 text-xs text-emerald-700">{{ c.estado }}</span>
+      </label>
+      {% else %}
+      <p class="px-4 py-8 text-center text-sm text-slate-500">No hay equipos disponibles para donar.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="flex flex-wrap gap-3 pb-6">
+    <button class="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Registrar donación</button>
+    <a href="/donaciones" class="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

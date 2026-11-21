@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Materiales recuperados{% endblock %}
+{% block heading %}Materiales y fracciones recuperadas{% endblock %}
+{% block subheading %}Stock en kilogramos y trazabilidad de movimientos{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
+    <h2 class="text-sm font-semibold text-slate-900">Stock por material</h2>
+    <div class="mt-4 overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <tr><th class="px-3 py-2">Material</th><th class="px-3 py-2">Entradas</th><th class="px-3 py-2">Salidas</th><th class="px-3 py-2">Stock</th><th class="px-3 py-2">Factor CO2e</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for f in filas %}
+          <tr>
+            <td class="px-3 py-2.5 font-medium text-slate-800">{{ f.tipo.nombre }}</td>
+            <td class="px-3 py-2.5 text-slate-600">{{ '%.2f'|format(f.entradas) }} kg</td>
+            <td class="px-3 py-2.5 text-slate-600">{{ '%.2f'|format(f.salidas) }} kg</td>
+            <td class="px-3 py-2.5 font-semibold text-emerald-700">{{ '%.2f'|format(f.stock) }} kg</td>
+            <td class="px-3 py-2.5 text-slate-600">{{ '%.2f'|format(f.tipo.factor_co2e) }} kg/kg</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="px-3 py-8 text-center text-slate-500">No hay tipos de materiales.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="space-y-6">
+    <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 class="text-sm font-semibold text-slate-900">Nuevo tipo de material</h2>
+      <form method="post" action="/materiales/tipos" class="mt-3 space-y-3">
+        <input name="nombre" required placeholder="Ej.: Vidrio, Plata, Oro…" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+        <input name="factor_co2e" type="number" step="0.01" min="0" value="0" placeholder="Factor CO2e evitado por kg" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+        <button class="w-full rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700">Crear material</button>
+      </form>
+    </section>
+
+    <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 class="text-sm font-semibold text-slate-900">Registrar pesaje o salida</h2>
+      <form method="post" action="/materiales/movimientos" class="mt-3 space-y-3">
+        <select name="tipo" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          <option value="alta">Alta de pesaje (sumar kg)</option>
+          <option value="salida">Salida por entrega / venta</option>
+        </select>
+        <select name="tipo_material_id" required class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          <option value="">Material…</option>
+          {% for f in filas %}<option value="{{ f.tipo.id }}">{{ f.tipo.nombre }}</option>{% endfor %}
+        </select>
+        <div class="grid grid-cols-2 gap-2">
+          <input name="kg" type="number" step="0.01" min="0.01" required placeholder="Kilogramos" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          <input name="fecha" type="datetime-local" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+        </div>
+        <input name="referencia" placeholder="Referencia / remito" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+        <select name="reciclador_id" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          <option value="">Reciclador (opcional)</option>
+          {% for r in recicladores %}<option value="{{ r.id }}">{{ r.razon_social }}</option>{% endfor %}
+        </select>
+        <textarea name="observacion" rows="2" placeholder="Observación" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
+        <button class="w-full rounded-lg bg-slate-800 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-900">Registrar movimiento</button>
+      </form>
+    </section>
+  </div>
+</div>
+
+<section class="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+  <div class="border-b border-slate-200 px-5 py-4">
+    <h2 class="text-sm font-semibold text-slate-900">Detalle de movimientos</h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+        <tr><th class="px-4 py-3">Fecha</th><th class="px-4 py-3">Material</th><th class="px-4 py-3">Tipo</th><th class="px-4 py-3">Kg</th><th class="px-4 py-3">Referencia</th><th class="px-4 py-3">Destino</th></tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for m in movimientos %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 text-slate-600">{{ m.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td class="px-4 py-3 font-medium text-slate-800">{{ m.tipo_material.nombre }}</td>
+          <td class="px-4 py-3"><span class="rounded-full px-2 py-1 text-xs {{ 'bg-emerald-100 text-emerald-700' if m.tipo == 'alta' else 'bg-amber-100 text-amber-700' }}">{{ 'Alta' if m.tipo == 'alta' else 'Salida' }}</span></td>
+          <td class="px-4 py-3 text-slate-600">{{ '%.2f'|format(m.kg) }}</td>
+          <td class="px-4 py-3 text-slate-600">{{ m.referencia or '—' }}</td>
+          <td class="px-4 py-3 text-slate-600">{{ m.reciclador.nombre_corto if m.reciclador else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">No hay movimientos registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

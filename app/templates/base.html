@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Leandro Damian Chumbita - Técnico Superior en Programación">
+  <title>{% block title %}Panel principal{% endblock %} · {{ app_name }}</title>
+  <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="{{ url_for('static', path='/img/favicon.ico') }}">
+  <link rel="icon" type="image/png" sizes="180x180" href="{{ url_for('static', path='/img/favicon.png') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', path='/img/favicon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/app.css') }}">
+  <script src="{{ url_for('static', path='/js/alpine.min.js') }}" defer></script>
+  <script src="{{ url_for('static', path='/js/app.js') }}" defer></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+      .print-full { max-width: none !important; padding: 0 !important; }
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-100 text-slate-800 antialiased" x-data="{ open: false }">
+
+  <!-- Overlay móvil -->
+  <div class="no-print fixed inset-0 z-30 bg-slate-900/50 lg:hidden"
+       x-show="open"
+       x-transition.opacity
+       @click="open = false"
+       style="display: none;"></div>
+
+  <!-- Barra lateral -->
+  <aside class="no-print fixed inset-y-0 left-0 z-40 w-64 -translate-x-full transform bg-slate-900 text-slate-200 transition-transform duration-200 lg:translate-x-0"
+         :class="{ 'translate-x-0': open, '-translate-x-full': !open }">
+    <div class="flex h-16 items-center gap-3 border-b border-slate-700/70 px-5">
+      <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 font-bold text-slate-900">E</div>
+      <div class="leading-tight">
+        <div class="truncate text-sm font-semibold text-white" title="{{ app_name }}">{{ app_name }}</div>
+        <div class="text-[11px] text-emerald-400">Gestión RAEE</div>
+      </div>
+    </div>
+
+    {% set nav = [
+      ('/', 'Panel', '◧'),
+      ('/entidades', 'Entidades', '▣'),
+      ('/ingresos', 'Ingresos', '⇥'),
+      ('/inventario', 'Inventario', '▤'),
+      ('/materiales', 'Materiales recuperados', '♻'),
+      ('/donaciones', 'Donaciones', '♡'),
+      ('/impacto', 'Impacto ambiental', '◉'),
+      ('/manual', 'Manual de uso', '?'),
+    ] %}
+    <nav class="mt-4 space-y-1 px-3 pb-24">
+      {% for href, label, icon in nav %}
+        {% if href == '/' %}
+          {% set activo = request.url.path == '/' %}
+        {% else %}
+          {% set activo = request.url.path.startswith(href) %}
+        {% endif %}
+        <a href="{{ href }}"
+           @click="open = false"
+           class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors {{ 'bg-emerald-500/15 font-semibold text-emerald-300 ring-1 ring-inset ring-emerald-500/30' if activo else 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+          <span class="flex h-6 w-6 items-center justify-center rounded bg-slate-800 text-xs text-emerald-400">{{ icon }}</span>
+          <span>{{ label }}</span>
+        </a>
+      {% endfor %}
+    </nav>
+  </aside>
+
+  <!-- Contenido -->
+  <div class="flex min-h-full flex-col lg:pl-64">
+    <header class="no-print sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
+      <button class="rounded-lg border border-slate-300 p-2 text-slate-600 lg:hidden" @click="open = true" aria-label="Abrir menú">☰</button>
+      <div class="min-w-0">
+        <h1 class="truncate text-lg font-semibold text-slate-900">{% block heading %}{{ app_name }}{% endblock %}</h1>
+        <p class="hidden text-xs text-slate-500 sm:block">{% block subheading %}Tucumán, Argentina{% endblock %}</p>
+      </div>
+      <div class="ml-auto hidden items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 sm:flex">
+        <span class="h-2 w-2 rounded-full bg-emerald-500"></span> Sistema local activo
+      </div>
+    </header>
+
+    <main class="print-full mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
+      {% if ok %}
+        <div class="no-print mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ ok }}</div>
+      {% endif %}
+      {% if error %}
+        <div class="no-print mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ error }}</div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="no-print border-t border-slate-200 bg-white px-4 py-4 text-center text-xs text-slate-500 sm:px-6">
+      © 2026 {{ app_name }} · Tucumán, Argentina
+    </footer>
+  </div>
+</body>
+</html>

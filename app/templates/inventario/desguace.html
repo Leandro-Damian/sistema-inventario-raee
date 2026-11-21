@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Desguace de {{ item.codigo }}{% endblock %}
+{% block heading %}Desguace / recuperación de componentes{% endblock %}
+{% block subheading %}Equipo origen: {{ item.codigo }}{% endblock %}
+
+{% block content %}
+<form method="post" action="/inventario/{{ item.id }}/desguace" x-data='{
+  componentes: [{ categoria: "", marca: "", modelo: "", cantidad: 1, peso: "" }],
+  categorias: {{ categorias|tojson }},
+  agregar() { this.componentes.push({ categoria: "", marca: "", modelo: "", cantidad: 1, peso: "" }); },
+  quitar(i) { if (this.componentes.length > 1) this.componentes.splice(i, 1); }
+}' class="space-y-6">
+
+  <input type="hidden" name="componente_count" x-bind:value="componentes.length">
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <p class="text-sm text-slate-600">
+      Los componentes que registres se dan de alta en inventario como
+      <span class="font-semibold text-emerald-700">Recuperado</span> y quedan vinculados a
+      <span class="font-semibold">{{ item.codigo }}</span>.
+    </p>
+    <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+      <label class="block flex-1">
+        <span class="text-xs font-medium text-slate-600">Estado final del chasis restante</span>
+        <select name="estado_final" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+          <option value="Desguazado">Desguazado</option>
+          <option value="Reciclado">Reciclado</option>
+        </select>
+      </label>
+      <button type="button" @click="agregar()" class="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">+ Agregar componente</button>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <template x-for="(c, i) in componentes" :key="i">
+      <div class="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-4 last:mb-0">
+        <div class="mb-3 flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Componente <span x-text="i + 1"></span></span>
+          <button type="button" @click="quitar(i)" class="rounded border border-red-200 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50">Quitar</button>
+        </div>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <label class="block">
+            <span class="text-xs font-medium text-slate-600">Categoría *</span>
+            <select :name="'comp_categoria_' + i" x-model="c.categoria" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              <option value="">Seleccionar…</option>
+              <template x-for="cat in categorias" :key="cat"><option :value="cat" x-text="cat"></option></template>
+            </select>
+          </label>
+          <label class="block"><span class="text-xs font-medium text-slate-600">Marca</span>
+            <input type="text" :name="'comp_marca_' + i" x-model="c.marca" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></label>
+          <label class="block"><span class="text-xs font-medium text-slate-600">Modelo</span>
+            <input type="text" :name="'comp_modelo_' + i" x-model="c.modelo" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></label>
+          <label class="block"><span class="text-xs font-medium text-slate-600">Cantidad</span>
+            <input type="number" min="1" value="1" :name="'comp_cantidad_' + i" x-model="c.cantidad" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></label>
+          <label class="block"><span class="text-xs font-medium text-slate-600">Peso unitario (kg)</span>
+            <input type="number" min="0" step="0.001" :name="'comp_peso_' + i" x-model="c.peso" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></label>
+        </div>
+      </div>
+    </template>
+  </section>
+
+  <div class="flex flex-wrap gap-3 pb-6">
+    <button class="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Registrar desguace</button>
+    <a href="/inventario/{{ item.id }}" class="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
