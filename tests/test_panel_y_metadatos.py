@@ -24,6 +24,7 @@ def test_metadato_autor_solo_en_head_y_no_en_interfaz(client):
     inicio_footer = html.find("<footer")
     fin_footer = html.find("</footer>", inicio_footer)
     footer = html[inicio_footer:fin_footer]
+    assert "© 2027 · Electrogreem S.R.L. · Gestión integral de RAEE · Tucumán, Argentina" in footer
     assert "Leandro" not in footer
     assert "Chumbita" not in footer
     assert "http://" not in footer

@@ -1,6 +1,6 @@
 # Manual de usuario — Electrogreem - Inventario
 
-Gestión integral de RAEE · Tucumán, Argentina
+Electrogreem S.R.L. · Gestión integral de RAEE · Tucumán, Argentina
 
 Este manual explica la operatoria diaria del sistema. La aplicación se ejecuta en la red local (LAN), se abre desde un navegador y no requiere conexión a internet.
 
@@ -8,15 +8,40 @@ Este manual explica la operatoria diaria del sistema. La aplicación se ejecuta 
 
 ## 1. Acceso
 
-1. En la computadora servidor, ejecutá `iniciar.bat` (Windows) o `iniciar.sh` (Linux).
-2. La consola mostrará la **IP local** del equipo, por ejemplo `http://192.168.1.50:8000`.
-3. En cualquier dispositivo conectado a la misma red, abrí el navegador y escribí esa dirección.
-4. También podés usar `http://localhost:8000` en la propia computadora servidor.
-5. **Minimizá la ventana negra de la consola** (botón `─`) mientras el sistema esté en uso en la red local. **Nunca la cierres con la X**: al cerrarla se detiene el servidor y los demás dispositivos pierden acceso.
+En la computadora servidor con Windows, hacé doble clic en el acceso directo **Electrogreem - Inventario** del escritorio. El lanzador inicia el servidor local en segundo plano (sin mostrar una ventana de consola que pueda cerrarse por error) y abre automáticamente el sistema en el navegador en `http://localhost:8000`.
 
-Al terminar la jornada, **volvé a la consola** (está minimizada en la barra de tareas) y presioná `Ctrl + C`. Recién después podés cerrar la ventana.
+Si necesitás acceder desde otra computadora o dispositivo conectado a la misma red local (LAN), abrí el navegador e ingresá a la dirección IP local del equipo servidor en el puerto `8000` (por ejemplo, `http://192.168.1.50:8000`). En Linux, podés iniciar el servicio desde terminal con `./iniciar.sh` y abrir `http://localhost:8000` o la IP local correspondiente.
 
-> El sistema no solicita usuario ni contraseña: está pensado para uso interno en la red local.
+El sistema no solicita usuario ni contraseña: está pensado para uso interno en la red local. Al apagar el equipo servidor desde Windows al final de la jornada, el sistema se cierra de forma ordenada; si necesitás detener el proceso de Python manualmente, podés hacerlo desde el Administrador de tareas.
+
+---
+
+## Cómo cargar mi primera información
+
+Si es tu primera vez en el sistema, seguí estos cuatro pasos en orden. No necesitás conocimientos técnicos: completá los formularios con los datos que tengas a mano y guardá al final de cada paso.
+
+### Paso 1: Crear o seleccionar la entidad (origen/contraparte)
+
+Antes de registrar equipos o lotes, definí la entidad: quién entrega los RAEE o a dónde van destinados. Entrá al menú **Entidades** y presioná **+ Nueva entidad** (si ya existe, buscala en la lista y seleccionala). Cargá el **nombre o razón social** de forma uniforme —siempre el mismo texto, sin variantes ni abreviaturas distintas entre cargas—, el **tipo/rol** (`Generador`, `Receptor de donaciones`, `Operador / Reciclador` u `Otro`) y los datos disponibles (nombre corto, CUIT, provincia/localidad y contacto). Guardá con **Guardar entidad**. Si falta algún dato opcional, dejalo en blanco y completalo más adelante editando la entidad.
+
+### Paso 2: Cargar el primer ingreso o lote de RAEE
+
+En el menú **Ingresos**, presioná **+ Nuevo ingreso**. Elegí la entidad del paso anterior como **Generador**, la **fecha y hora de retiro** y, si lo tenés, el número de **Remito / Manifiesto**. Agregá una fila por cada tipo de equipo o material con **+ Agregar fila de ítem** y completá:
+
+- **Categoría/tipo** (y subtipo si corresponde).
+- **Cantidad** de unidades y **peso unitario en kg** (por ejemplo, `0.15` equivale a 150 gramos).
+- **Estado inicial**: el sistema lo asigna automáticamente como `En recepción`.
+- **Observaciones**: cargá en el campo **Resumen** del ingreso la marca, el modelo, el número de serie, el estado físico o el remito; en unidades de almacenamiento podés usar además los campos específicos (número de serie, capacidad, estado SMART).
+
+Presioná **Registrar ingreso**: el sistema genera el código del ingreso (`ING-AAAA-00001`) y un código `RAEE-AAAA-000001` por cada unidad creada.
+
+### Paso 3: Registrar movimientos, clasificación o cambios de estado
+
+En el menú **Inventario**, buscá el equipo por código, marca o modelo y abrí su ficha. Desde ahí podés usar **Cambiar estado** (por ejemplo, pasar de `En recepción` a `En revisión`, `Recuperado` o `Para donar`) y agregar especificaciones técnicas. Si el equipo es irreparable, registrá el **desguace / recuperación**; si está listo para entregar, incluilo en una **donación**. Si te equivocaste en una carga, editá y guardá la corrección en la vista correspondiente; cuando un registro ya no deba usarse, dalo de baja o desactivalo (por ejemplo, **Activar / Desactivar** en entidades) para conservar su historial en lugar de perderlo.
+
+### Paso 4: Revisar los tableros y cerrar la jornada
+
+Volvé al **Panel principal** para ver los ítems registrados, el stock activo, el peso total, las donaciones y el CO2e, y mirá **Impacto ambiental** para ver el resumen de recuperación y reciclaje (son cifras estimativas, explicadas en ese módulo). Al terminar de cargar, apagá Windows de forma ordenada desde el menú Inicio: el servidor local se cierra junto con el equipo y no hace falta hacer nada más.
 
 ---
 
@@ -178,28 +203,45 @@ Los equipos pasan automáticamente a estado `Donado` y se genera el acta. Desde 
 
 Menú **Impacto ambiental**. Contabiliza el CO2e evitado con dos enfoques:
 
-1. **Reutilización y donación**: equipos donados y recuperados, según factor por categoría.
+1. **Reutilización y donación**: equipos en estado `Recuperado` o `Donado`, según factor por categoría.
 2. **Reciclaje y valorización**: kilogramos de materiales recuperados multiplicados por su factor.
 
 Usá los campos **Desde** y **Hasta** para filtrar por rango de fechas y presioná **Aplicar filtro**.
 
 Se muestran equivalencias comprensibles (árboles por año y kilómetros evitados en auto) y un desglose por categoría y por material. El botón **Vista imprimible para gerencia** abre un informe limpio listo para imprimir.
 
+> **Todas las cifras mostradas son estimativas.** Son valores orientativos calculados según los factores cargados en el sistema y los pesos y cantidades registrados; **no constituyen una medición exacta ni una certificación ambiental oficial**.
+
+### Cómo leer e interpretar los números
+
+- **Cantidades e ítems según estado**: cada equipo tiene su propio código `RAEE-AAAA-000001` y un estado (`En recepción`, `En revisión`, `Recuperado`, `Para donar`, `Donado`, `Reciclado` o `Desguazado`). El panel y el inventario muestran cuántos ítems hay en cada estado. En Impacto ambiental solo se cuentan los ítems `Recuperados` y `Donados`, que son los que se consideran reutilizados; el número de la columna **Cant.** es la cantidad de equipos de esa categoría incluidos en el cálculo.
+- **Kilogramos y fracciones**: el peso se expresa siempre en kg con decimales (por ejemplo, `0.15` kg son 150 g). Conviene distinguir el **peso confirmado** —obtenido al pesar el equipo o el material en una balanza— del **peso estimado** —declarado a simple vista o tomado de un remito—. El sistema suma ambos tal como se cargaron: si un peso fue estimado, aclaralo en las observaciones para no confundirlo con un pesaje real. Los kilogramos de materiales recuperados son los que se usan para calcular el reciclaje.
+- **Indicadores de CO₂e evitado**: son estimaciones que resultan de multiplicar cada ítem recuperado o donado por el factor de su categoría y cada kg de material recuperado por el factor de ese material. El **total evitado** es la suma de ambos enfoques; las equivalencias en árboles por año o kilómetros en auto son solo comparaciones ilustrativas, no mediciones reales de emisiones.
+
 ---
 
-## 11. Manual de uso
-
-Este documento está disponible en todo momento desde el menú lateral, opción **Manual de uso**.
-
----
-
-## 12. Preguntas frecuentes
+## 11. Preguntas frecuentes
 
 **¿Qué hago si no arranca el sistema?**  
 Verificá que Python 3.10 o superior esté instalado y volvé a ejecutar `iniciar.bat`. El script crea el entorno virtual, instala dependencias y genera la base automáticamente.
 
-**¿Cómo arranco sin datos de ejemplo?**  
-Ejecutá `python scripts/init_db.py --no-demo`. Si la base ya existe, primero borrá `data/raee.db` o usá `python scripts/init_db.py --reset` (esta última opción pide confirmación y elimina todos los datos).
+**¿Solo yo puedo utilizar el sistema?**  
+No, cualquier dispositivo en la misma red local (LAN) puede acceder ingresando a `http://<IP-DEL-SERVIDOR>:8000`, y en el equipo servidor también con `http://localhost:8000`.
+
+**¿Qué pasa si cargo determinada información y otro usuario quiere hacer lo mismo?**  
+Todos trabajan sobre la misma base de datos central (`data/raee.db`) del servidor; cada cambio guardado se refleja para todos. Recomendamos coordinar las cargas simultáneas sobre un mismo lote para no duplicar entradas.
+
+**Me equivoqué de datos: ¿puedo editar/agregar/actualizar/eliminar información?**  
+Sí, desde las vistas del sistema se pueden agregar nuevos registros, editar o actualizar datos existentes y eliminar o dar de baja registros cuando corresponda.
+
+**¿Qué sucede si en pleno uso del sistema se apaga la PC?**  
+El servidor local se detiene y los navegadores pierden conexión hasta volver a encender la PC e iniciar el sistema. Los registros ya confirmados antes del corte quedan guardados en SQLite, mientras que una operación sin guardar al instante del apagón no queda asentada.
+
+**¿Qué pasa si ingresa un RAEE que no está en la lista, con su respectiva marca, modelo, número de serie y demás datos que correspondan?**  
+Seleccioná la categoría o tipo general más cercano disponible en el listado (o la opción genérica/otros si corresponde) y asentá la marca, el modelo, el número de serie, el estado físico y cualquier dato técnico relevante en los campos específicos del equipo o en las observaciones del registro, para no perder trazabilidad.
+
+**¿Qué pasa si no cuento con alguna información a llenar de una entidad?**  
+Cargá la entidad con los datos mínimos obligatorios disponibles (como el nombre o razón social y su tipo/rol) y dejá en blanco o como pendiente los datos opcionales que aún no tengas (por ejemplo teléfono, correo o dirección); más adelante podés editar la entidad para completarlos sin afectar los movimientos ya registrados.
 
 **¿Se puede usar desde el celular o una tablet?**  
 Sí. La interfaz se adapta a cualquier resolución: en pantallas chicas el menú se abre con el botón ☰.

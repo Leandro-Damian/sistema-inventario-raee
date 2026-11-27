@@ -1,11 +1,12 @@
 from app.config import APP_NAME, AUTHOR
 
+COMPANY_NAME = "Electrogreem S.R.L."
+
 
 def test_nombre_del_sistema_en_titulo_head_y_encabezados(client):
     for ruta in ("/", "/ingresos/nuevo", "/manual"):
         html = client.get(ruta).text
         assert APP_NAME in html, ruta
-        assert "Electrogreem S.R.L." not in html, ruta
 
     html = client.get("/").text
     inicio_head = html.find("<head")
@@ -20,6 +21,15 @@ def test_nombre_del_sistema_en_titulo_head_y_encabezados(client):
     assert AUTHOR in head
 
 
+def test_razon_social_en_pie_y_manual(client):
+    for ruta in ("/", "/ingresos/nuevo", "/manual"):
+        html = client.get(ruta).text
+        assert COMPANY_NAME in html, ruta
+        inicio_head = html.find("<head")
+        fin_head = html.find("</head>", inicio_head)
+        assert COMPANY_NAME not in html[inicio_head:fin_head], ruta
+
+
 def test_favicons_estan_disponibles_por_http(client):
     for ruta, tipo in (
         ("/static/img/favicon.ico", "image/x-icon"),
@@ -31,11 +41,11 @@ def test_favicons_estan_disponibles_por_http(client):
         assert len(respuesta.content) > 100, ruta
 
 
-def test_manual_consola_y_peso_decimal(client):
+def test_manual_acceso_y_peso_decimal(client):
     html = client.get("/manual").text
-    assert "minimiz" in html.lower()
-    assert "Nunca la cierres con la X" in html
-    assert "Ctrl + C" in html
+    assert "acceso directo" in html.lower()
+    assert "sin mostrar una ventana de consola" in html.lower()
+    assert "Administrador de tareas" in html
     assert "0.15" in html
     assert "150 gramos" in html
     assert "1.0" in html
